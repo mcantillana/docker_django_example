@@ -1,0 +1,29 @@
+version: '2.1'
+services:
+  web:
+    image: docker_django2:latest
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8088:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_USER: 'django_user'
+      DB_PASSWORD: '1234'
+      DB_NAME: 'django_db'
+
+  db:
+    image: mysql/mysql-server:5.7
+    volumes:
+        - ./data/db:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: django_db
+      MYSQL_USER: django_user
+      MYSQL_PASSWORD: 1234
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
